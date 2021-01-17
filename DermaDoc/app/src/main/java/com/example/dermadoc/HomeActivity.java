@@ -188,7 +188,13 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Log.d("Status", response.toString());
-                Log.d("Response", response.body().string());
+                String melanoma = response.body().string();
+                Log.d("Response", melanoma);
+                Intent i = new Intent(HomeActivity.this,ResultActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("result", melanoma);
+                i.putExtras(bundle);
+                startActivity(i);
             }
         });
     }
