@@ -136,7 +136,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void sendRequestToAPI(View view){
-        if (selectedImagePath != null){
+        if (selectedImagePath != null || selectedImagePath.isEmpty()){
             new Thread(){
                 @Override
                 public void run(){
@@ -161,14 +161,6 @@ public class HomeActivity extends AppCompatActivity {
                 .build();
 
         postRequest(url, bodyImage);
-    }
-
-    private void getServer(String url){
-        String postBodyText="Hello";
-        MediaType mediaType = MediaType.parse("text/plain; charset=utf-8");
-        RequestBody postBody = RequestBody.create(mediaType, postBodyText);
-
-        postRequest(url, postBody);
     }
 
     private void postRequest(String url, RequestBody body){
@@ -364,7 +356,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == IMAGE_CAPTURE_CODE) {
             //set the image captured to our ImageView
-            selectedImagePath = getPath(getApplicationContext(), data.getData());
+            //selectedImagePath = getPath(getApplicationContext(), data.getData());
             mImageView.setImageURI(image_uri);
         } else if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE) {
             //set selected image to image view
