@@ -28,7 +28,9 @@ import android.widget.Toast;
 import android.widget.ImageView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -55,7 +57,7 @@ public class HomeActivity extends AppCompatActivity {
     Button mCaptureBtn,mChooseBtn, mProceedBtn;
     ImageView mImageView;
     Uri image_uri;
-    String selectedImagePath;
+    String selectedImagePath = "";
 
 
     //function to log out of app
@@ -136,11 +138,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void sendRequestToAPI(View view){
-        if (selectedImagePath != null || selectedImagePath.isEmpty()){
+        if (selectedImagePath != null && !selectedImagePath.isEmpty()){
             new Thread(){
                 @Override
                 public void run(){
-                    String url = "http://192.168.1.8:5000";
+                    String url = "http://192.168.1.7:5000";
                     connectServer(url);
                 }
             }.start();
@@ -149,18 +151,25 @@ public class HomeActivity extends AppCompatActivity {
 
     private void connectServer(String url){
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.RGB_565;
-        Bitmap bitmap = BitmapFactory.decodeFile(selectedImagePath, options);;
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
+        //BitmapFactory.Options options = new BitmapFactory.Options();
+        //options.inPreferredConfig = Bitmap.Config.RGB_565;
+       // Bitmap bitmap = BitmapFactory.decodeFile(selectedImagePath, options);;
+        try{
+            InputStream is = getContentResolver().openInputStream(image_uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(is);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            byte[] byteArray = stream.toByteArray();
 
-        RequestBody bodyImage = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("image", "androidMelanoma.jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
-                .build();
+            RequestBody bodyImage = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("image", "androidMelanoma.jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
+                    .build();
 
-        postRequest(url, bodyImage);
+            postRequest(url, bodyImage);
+        }
+        catch (FileNotFoundException ex){
+            ex.printStackTrace();
+        }
     }
 
     private void postRequest(String url, RequestBody body){
